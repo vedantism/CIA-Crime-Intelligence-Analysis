@@ -23,19 +23,19 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap');
 
 :root {
     color-scheme: dark;
-    --bg: #060810;
-    --panel: #0d1320;
-    --panel-2: #111a2a;
-    --line: #26334a;
-    --muted: #8290a8;
-    --text: #e8edf7;
-    --cyan: #6ee7f9;
-    --violet: #a78bfa;
-    --red: #fb7185;
+    --bg: #050505;
+    --panel: #101010;
+    --panel-2: #171717;
+    --line: #343434;
+    --muted: #999999;
+    --text: #eeeeee;
+    --cyan: #d9363e;
+    --violet: #8f2028;
+    --red: #e04444;
 }
 
 html, body, [class*="css"] {
@@ -44,10 +44,10 @@ html, body, [class*="css"] {
 
 .stApp {
     background:
-        radial-gradient(ellipse at 75% -12%, rgba(100, 49, 130, .22), transparent 34%),
-        radial-gradient(ellipse at 8% 18%, rgba(20, 100, 126, .14), transparent 28%),
-        radial-gradient(ellipse at 90% 78%, rgba(125, 35, 61, .09), transparent 25%),
-        linear-gradient(145deg, #05070d 0%, #090e19 48%, #080a12 100%);
+        radial-gradient(ellipse at 78% -12%, rgba(130, 20, 28, .16), transparent 34%),
+        radial-gradient(ellipse at 8% 18%, rgba(105, 14, 22, .13), transparent 28%),
+        radial-gradient(ellipse at 92% 78%, rgba(160, 25, 35, .055), transparent 25%),
+        linear-gradient(145deg, #050505 0%, #0b0b0b 48%, #080808 100%);
     color: var(--text);
 }
 
@@ -59,8 +59,8 @@ html, body, [class*="css"] {
     pointer-events: none;
     z-index: 0;
     background-image:
-        linear-gradient(rgba(110, 231, 249, .018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(110, 231, 249, .018) 1px, transparent 1px);
+        linear-gradient(rgba(217, 54, 62, .018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(217, 54, 62, .018) 1px, transparent 1px);
     background-size: 42px 42px;
     mask-image: linear-gradient(to bottom, black, transparent 75%);
 }
@@ -72,8 +72,8 @@ html, body, [class*="css"] {
 
 [data-testid="stSidebar"] {
     background:
-        linear-gradient(180deg, rgba(12, 17, 30, .99), rgba(6, 9, 17, .99));
-    border-right: 1px solid rgba(110, 231, 249, .14);
+        linear-gradient(180deg, rgba(14, 14, 14, .99), rgba(5, 5, 5, .99));
+    border-right: 1px solid rgba(217, 54, 62, .14);
 }
 
 [data-testid="stSidebar"] > div:first-child {
@@ -89,16 +89,35 @@ html, body, [class*="css"] {
 }
 
 h1, h2, h3 {
-    font-family: 'Manrope', sans-serif !important;
+    font-family: 'Oswald', 'Manrope', sans-serif !important;
     color: #f3f6fc !important;
     letter-spacing: -.045em;
 }
+
+.cia-main-title {
+    margin: 0 0 10px;
+    color: #f3f3f3;
+    font-family: 'Oswald', 'Manrope', sans-serif !important;
+    font-size: clamp(2.45rem, 4.4vw, 3.55rem);
+    font-weight: 600;
+    letter-spacing: -.025em;
+    line-height: 1.08;
+}
+.cia-main-title .crime-word {
+    color: #e3343e;
+    font-family: 'Oswald', 'Manrope', sans-serif !important;
+    font-weight: 700;
+    letter-spacing: .015em;
+    text-transform: none;
+    text-shadow: 0 0 18px rgba(227, 52, 62, .12);
+}
+
 
 h1 {
     font-size: clamp(2.2rem, 4vw, 3.15rem) !important;
     line-height: 1.12 !important;
     font-weight: 800 !important;
-    text-shadow: 0 0 34px rgba(110, 231, 249, .10);
+    text-shadow: 0 0 34px rgba(217, 54, 62, .10);
 }
 
 h2 {
@@ -134,7 +153,7 @@ p, label, .stMarkdown {
     width: 23px;
     height: 1px;
     background: linear-gradient(90deg, var(--cyan), var(--violet));
-    box-shadow: 0 0 10px rgba(110, 231, 249, .7);
+    box-shadow: 0 0 10px rgba(217, 54, 62, .7);
 }
 
 .cia-subtitle {
@@ -148,8 +167,8 @@ p, label, .stMarkdown {
 
 [data-testid="stMetric"] {
     background:
-        linear-gradient(135deg, rgba(19, 29, 47, .96), rgba(9, 14, 25, .98));
-    border: 1px solid rgba(117, 139, 172, .22);
+        linear-gradient(135deg, rgba(25, 25, 25, .96), rgba(10, 10, 10, .98));
+    border: 1px solid rgba(217, 54, 62, .20);
     border-radius: 15px;
     padding: 20px 21px;
     box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
@@ -157,7 +176,7 @@ p, label, .stMarkdown {
 }
 
 [data-testid="stMetric"]:hover {
-    border-color: rgba(110, 231, 249, .45);
+    border-color: rgba(217, 54, 62, .55);
     transform: translateY(-2px);
 }
 
@@ -181,8 +200,8 @@ p, label, .stMarkdown {
 
 [data-testid="stPlotlyChart"],
 [data-testid="stDataFrame"] {
-    background: rgba(10, 15, 26, .58);
-    border: 1px solid rgba(110, 130, 160, .20);
+    background: rgba(14, 14, 14, .58);
+    border: 1px solid rgba(130, 130, 130, .20);
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 14px 35px rgba(0, 0, 0, .15);
@@ -195,8 +214,8 @@ p, label, .stMarkdown {
 .cia-panel {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(18, 27, 44, .95), rgba(9, 14, 25, .98));
-    border: 1px solid rgba(110, 130, 160, .24);
+    background: linear-gradient(135deg, rgba(24, 24, 24, .95), rgba(10, 10, 10, .98));
+    border: 1px solid rgba(130, 130, 130, .24);
     border-radius: 16px;
     padding: 22px 24px;
     margin: 10px 0 16px;
@@ -210,7 +229,7 @@ p, label, .stMarkdown {
     left: 0;
     height: 1px;
     width: 100%;
-    background: linear-gradient(90deg, transparent, rgba(110, 231, 249, .65), rgba(167, 139, 250, .55), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 107, .60), rgba(217, 54, 62, .55), transparent);
 }
 
 .cia-panel-title {
@@ -227,30 +246,55 @@ p, label, .stMarkdown {
     line-height: 1.85;
 }
 
-div.stButton > button,
-div.stDownloadButton > button {
-    background: linear-gradient(110deg, #164e63, #3730a3);
-    color: #f7fbff;
-    border: 1px solid rgba(110, 231, 249, .38);
+/* Primary actions: calm teal, designed for an analytical tool rather than an alarm console */
+div.stButton > button {
+    background: #351013;
+    color: #c4fff4;
+    border: 1px solid #8f2028;
     border-radius: 10px;
     min-height: 43px;
-    font-weight: 700;
-    box-shadow: 0 5px 18px rgba(20, 75, 110, .18);
-    transition: all .2s ease;
+    font-weight: 750;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .16);
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 
-div.stButton > button:hover,
+div.stButton > button:hover {
+    background: #4a1519;
+    border-color: #d9363e;
+    color: #ffffff;
+    box-shadow: 0 0 18px rgba(217, 54, 62, .14);
+    transform: translateY(-1px);
+}
+
+div.stButton > button:focus-visible,
+div.stDownloadButton > button:focus-visible {
+    outline: 2px solid #8ef3dc;
+    outline-offset: 3px;
+}
+
+/* Export actions: slightly quieter than primary actions, but still easy to find */
+div.stDownloadButton > button {
+    background: #2b1012;
+    color: #b8fff2;
+    border: 1px solid #237c79;
+    border-radius: 10px;
+    min-height: 42px;
+    font-weight: 700;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .13);
+    transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
 div.stDownloadButton > button:hover {
-    background: linear-gradient(110deg, #0e7490, #5b21b6);
-    border-color: rgba(110, 231, 249, .75);
-    color: white;
-    box-shadow: 0 0 22px rgba(110, 231, 249, .14);
+    background: #401417;
+    border-color: #d9363e;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(217, 54, 62, .12);
     transform: translateY(-1px);
 }
 
 div[data-baseweb="select"] > div,
 div[data-baseweb="input"] > div {
-    background-color: #0d1524;
+    background-color: #101722;
     border-color: #2b3a53;
     border-radius: 9px;
 }
@@ -265,7 +309,7 @@ div[data-baseweb="input"] > div {
 }
 
 [data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
-    background: rgba(110, 231, 249, .06);
+    background: rgba(217, 54, 62, .06);
 }
 
 [data-testid="stSidebar"] h1 {
@@ -287,8 +331,174 @@ hr {
 
 [data-testid="stExpander"] {
     background: rgba(12, 18, 31, .70);
-    border: 1px solid rgba(110, 130, 160, .20);
+    border: 1px solid rgba(130, 130, 130, .20);
     border-radius: 12px;
+}
+
+
+/* Topic-specific archive / investigation briefing */
+.cia-briefing {
+    position: relative; overflow: hidden;
+    background: radial-gradient(circle at 82% 45%, rgba(217,54,62,.10), transparent 25%),
+      radial-gradient(circle at 8% 0%, rgba(170, 45, 52,.055), transparent 30%),
+      linear-gradient(125deg, rgba(24,24,24,.98), rgba(10,10,10,.98));
+    border: 1px solid rgba(130,130,130,.24); border-radius: 18px;
+    margin: 14px 0 24px; padding: 20px 24px 15px;
+    box-shadow: 0 18px 45px rgba(0,0,0,.24);
+}
+.cia-briefing::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(217,54,62,.035) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(217,54,62,.035) 1px, transparent 1px);
+    background-size: 26px 26px; mask-image: linear-gradient(90deg, black, transparent 88%);
+}
+.cia-briefing-top, .cia-briefing-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; position: relative; z-index: 1;
+}
+.cia-briefing-kicker, .cia-briefing-status, .cia-briefing-label, .cia-briefing-footer {
+    font-family: 'DM Mono', monospace; letter-spacing: .11em; font-size: .65rem;
+}
+.cia-briefing-kicker { color: #d9363e; }
+.cia-pulse {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: #d9363e; margin-right: 7px;
+    box-shadow: 0 0 0 4px rgba(217,54,62,.12), 0 0 13px rgba(217,54,62,.45);
+}
+.cia-briefing-status {
+    border: 1px solid rgba(217,54,62,.30); color: #9cf3e3;
+    background: rgba(217,54,62,.065); border-radius: 5px; padding: 6px 9px;
+}
+.cia-briefing-grid {
+    display: grid; grid-template-columns: minmax(0, 1fr) 210px;
+    align-items: center; gap: 18px; position: relative; z-index: 1;
+    min-height: 205px; padding: 15px 0 11px;
+}
+.cia-briefing-label { color: #8b9bb2; margin-bottom: 10px; }
+.cia-briefing-heading {
+    color: #f3f6fc; font-size: clamp(1.65rem, 3vw, 2.35rem);
+    line-height: 1.12; font-weight: 800; letter-spacing: -.055em;
+}
+.cia-briefing-heading em { color: #d9363e; font-style: normal; }
+.cia-briefing-copy { color: #9aa9bd; font-size: .86rem; line-height: 1.75; max-width: 620px; margin-top: 12px; }
+.cia-briefing-footer {
+    border-top: 1px solid rgba(130,130,130,.17); padding-top: 12px;
+    color: #74859c; flex-wrap: wrap;
+}
+.cia-radar {
+    position: relative; width: 190px; height: 190px; justify-self: center;
+    border-radius: 50%; border: 1px solid rgba(217,54,62,.22);
+    background: radial-gradient(circle, rgba(217,54,62,.06), rgba(7,12,20,.1) 70%);
+    box-shadow: 0 0 38px rgba(217,54,62,.06), inset 0 0 25px rgba(217,54,62,.04);
+}
+.cia-radar-ring { position:absolute; border:1px solid rgba(217,54,62,.18); border-radius:50%; inset:12%; }
+.cia-radar-ring.ring-two { inset:27%; }
+.cia-radar-ring.ring-three { inset:42%; }
+.cia-radar-cross { position:absolute; background:rgba(217,54,62,.16); }
+.cia-radar-cross.cross-x { height:1px; left:4%; right:4%; top:50%; }
+.cia-radar-cross.cross-y { width:1px; top:4%; bottom:4%; left:50%; }
+.cia-radar-sweep {
+    position:absolute; inset:7%; border-radius:50%;
+    background:conic-gradient(from 0deg, transparent 0 68%, rgba(217,54,62,.2) 83%, transparent 100%);
+}
+.cia-radar-dot { position:absolute; width:6px; height:6px; border-radius:50%; background:#e04444; box-shadow:0 0 10px rgba(255,107,107,.9); }
+.cia-radar-dot.dot-one { top:28%; left:62%; }
+.cia-radar-dot.dot-two { top:62%; left:31%; background:#d9363e; box-shadow:0 0 10px rgba(217,54,62,.9); }
+.cia-radar-dot.dot-three { top:69%; left:68%; background:#d6a0a0; box-shadow:0 0 10px rgba(214,160,160,.9); }
+.cia-radar-center { position:absolute; width:5px; height:5px; border-radius:50%; background:#f4f7ff; left:calc(50% - 2.5px); top:calc(50% - 2.5px); }
+@media (max-width: 700px) {
+    .cia-briefing { padding: 17px; }
+    .cia-briefing-grid { grid-template-columns: 1fr; }
+    .cia-radar { width: 145px; height: 145px; margin: 8px auto; }
+    .cia-briefing-footer { gap: 8px; }
+}
+
+
+/* Use the same condensed display font across dashboard headings */
+.cia-section-title,
+.cia-panel-title,
+.cia-briefing-heading,
+.cia-toolstrip-title {
+    font-family: 'Oswald', 'Manrope', sans-serif !important;
+}
+
+/* Keep the sidebar brand consistent with the display typography */
+[data-testid="stSidebar"] h1 {
+    font-family: 'Oswald', 'Manrope', sans-serif !important;
+}
+
+/* Consistent investigation-console treatment across every workspace */
+.cia-section-heading { display:flex; align-items:flex-start; gap:12px; margin:22px 0 8px; }
+.cia-section-mark { display:block; width:4px; min-width:4px; height:27px; margin-top:3px; border-radius:4px; background:linear-gradient(180deg,#d9363e,#8f2028); box-shadow:0 0 13px rgba(217,54,62,.18); }
+.cia-section-title { color:#f1f5fc; font-size:1.18rem; font-weight:800; letter-spacing:-.035em; line-height:1.35; }
+.cia-section-subtitle { color:#8392a9; font-size:.82rem; line-height:1.7; margin-top:3px; }
+.cia-toolstrip { display:flex; align-items:center; gap:13px; padding:14px 16px; margin:12px 0 18px; border:1px solid rgba(217,54,62,.18); border-radius:13px; background:linear-gradient(100deg,rgba(30,18,19,.88),rgba(14,14,14,.82)); box-shadow:inset 3px 0 0 rgba(217,54,62,.62); }
+.cia-toolstrip-icon { display:flex; align-items:center; justify-content:center; flex:0 0 36px; height:36px; border-radius:10px; color:#d9363e; font-size:1.35rem; background:rgba(217,54,62,.09); border:1px solid rgba(217,54,62,.18); }
+.cia-toolstrip-title { color:#eaf1fc; font-size:.86rem; font-weight:800; letter-spacing:-.01em; }
+.cia-toolstrip-copy { color:#8c9bb1; font-size:.75rem; line-height:1.55; margin-top:3px; }
+.cia-toolstrip-tag { margin-left:auto; white-space:nowrap; color:#d9363e; font-family:'DM Mono',monospace; font-size:.60rem; letter-spacing:.10em; border:1px solid rgba(217,54,62,.22); background:rgba(217,54,62,.05); border-radius:5px; padding:6px 8px; }
+.cia-schema-map { display:grid; grid-template-columns:1fr minmax(120px,.75fr) 1fr; gap:12px; align-items:center; margin:14px 0 22px; padding:18px; border:1px solid rgba(130,130,130,.18); border-radius:15px; background:linear-gradient(135deg,rgba(22,22,22,.92),rgba(9,9,9,.9)); }
+.cia-schema-side { display:grid; gap:8px; }
+.cia-schema-kicker { color:#d9363e; font-family:'DM Mono',monospace; font-size:.62rem; letter-spacing:.14em; margin-bottom:2px; }
+.cia-schema-table { display:flex; flex-direction:column; gap:4px; padding:11px 12px; border:1px solid rgba(143,32,40,.22); border-radius:9px; background:rgba(143,32,40,.045); }
+.cia-schema-table b { color:#e7edf8; font-size:.77rem; overflow-wrap:anywhere; }
+.cia-schema-table small { color:#8191a9; font-size:.68rem; }
+.fact-side .cia-schema-table { border-color:rgba(217,54,62,.24); background:rgba(217,54,62,.045); }
+.cia-schema-link { text-align:center; color:#9aa9bd; }
+.cia-schema-link span { font-family:'DM Mono',monospace; font-size:.59rem; letter-spacing:.12em; color:#8393aa; }
+.cia-schema-link div { color:#d9363e; font-size:2.1rem; line-height:1.5; }
+.cia-schema-link small { display:block; color:#708199; font-size:.62rem; line-height:1.5; }
+
+/* Navigation and form controls */
+[data-testid="stSidebar"] [data-testid="stRadio"] > label { color:#8293aa !important; font-family:'DM Mono',monospace; font-size:.66rem !important; letter-spacing:.14em; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] { gap:5px; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label { border:1px solid transparent; padding:10px 11px; transition:all .18s ease; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) { background:linear-gradient(90deg,rgba(217,54,62,.13),rgba(217,54,62,.025)); border-color:rgba(217,54,62,.22); box-shadow:inset 2px 0 #d9363e; }
+[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label p { color:#dce6f5 !important; font-size:.82rem; font-weight:650; }
+[data-testid="stWidgetLabel"] p { color:#9aa9bd !important; font-size:.77rem !important; font-weight:650; }
+[data-baseweb="select"] * { color:#e3eaf6 !important; }
+[data-baseweb="input"] input, [data-baseweb="textarea"] textarea { color:#edf3ff !important; }
+[data-testid="stDataFrame"] { border-color:rgba(130,130,130,.23); box-shadow:0 12px 32px rgba(0,0,0,.13); }
+[data-testid="stDataFrame"] [role="columnheader"] { background:rgba(217,54,62,.07) !important; }
+[data-testid="stPlotlyChart"] { border-color:rgba(130,130,130,.19); background:linear-gradient(145deg,rgba(13,19,32,.7),rgba(8,12,21,.55)); }
+[data-testid="stExpander"] summary { color:#e4ecf8; font-weight:700; }
+.stAlert p { color:inherit; }
+.stDownloadButton button { letter-spacing:.01em; }
+@media (max-width: 760px) {
+  .cia-toolstrip { align-items:flex-start; }
+  .cia-toolstrip-tag { display:none; }
+  .cia-schema-map { grid-template-columns:1fr; }
+  .cia-schema-link div { transform:rotate(90deg); line-height:1.1; }
+  .cia-schema-link small { margin-bottom:4px; }
+}
+
+
+/* Final polish: clearer focus, calmer navigation, and consistent chart rhythm */
+[data-testid="stSidebar"] [data-testid="stRadio"] label:focus-within {
+    outline: 2px solid rgba(217,54,62,.72);
+    outline-offset: 2px;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label[data-checked="true"] {
+    background: linear-gradient(90deg, rgba(217,54,62,.13), rgba(217,54,62,.035));
+    border: 1px solid rgba(217,54,62,.20);
+    box-shadow: inset 2px 0 #d9363e;
+}
+[data-testid="stPlotlyChart"] {
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+[data-testid="stPlotlyChart"]:hover {
+    border-color: rgba(217,54,62,.28);
+    box-shadow: 0 15px 38px rgba(0,0,0,.20);
+}
+div.stButton > button:active, div.stDownloadButton > button:active {
+    transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 footer { visibility: hidden; }
@@ -311,20 +521,58 @@ def format_number(value):
 
 
 def heading(title, subtitle=None):
-    st.subheader(title)
-    if subtitle:
-        st.markdown(f'<div class="cia-subtitle">{subtitle}</div>', unsafe_allow_html=True)
+    subtitle_html = f'<div class="cia-section-subtitle">{subtitle}</div>' if subtitle else ''
+    st.markdown(
+        f'<div class="cia-section-heading"><span class="cia-section-mark"></span>'
+        f'<div><div class="cia-section-title">{title}</div>{subtitle_html}</div></div>',
+        unsafe_allow_html=True,
+    )
 
 
 def styled_chart(fig, height=None):
+    """Apply the CIA chart system consistently across all Plotly visualizations."""
     fig.update_layout(
         template="plotly_dark",
-        paper_bgcolor="rgba(7,10,18,0.2)",
-        plot_bgcolor="rgba(7,10,18,0.2)",
-        font=dict(family="Arial, sans-serif", color="#dce7f7", size=12),
-        margin=dict(l=10, r=10, t=30, b=10),
-        legend=dict(bgcolor="rgba(0,0,0,0)", borderwidth=0),
+        colorway=["#d9363e", "#a7a7a7", "#8f2028", "#e6a0a0", "#6f6f6f", "#f05a5a"],
+        paper_bgcolor="rgba(7,10,18,0)",
+        plot_bgcolor="rgba(7,10,18,0)",
+        font=dict(family="Manrope, sans-serif", color="#dce7f7", size=12),
+        margin=dict(l=14, r=18, t=38, b=16),
+        legend=dict(
+            bgcolor="rgba(0,0,0,0)", borderwidth=0,
+            font=dict(color="#b9c4d6", size=11),
+            orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+            itemsizing="constant",
+        ),
+        hoverlabel=dict(
+            bgcolor="#111c2b", bordercolor="#d9363e",
+            font=dict(family="Manrope, sans-serif", color="#edf7ff", size=12),
+            namelength=-1,
+        ),
+        xaxis=dict(
+            showgrid=True, gridcolor="rgba(130,130,130,.10)",
+            zerolinecolor="rgba(130,130,130,.22)",
+            ticks="outside", tickcolor="rgba(130,130,130,.25)",
+            tickfont=dict(color="#aebbd0", size=11),
+            title_font=dict(color="#dce7f7", size=12),
+            automargin=True,
+            showline=False,
+        ),
+        yaxis=dict(
+            showgrid=True, gridcolor="rgba(130,130,130,.08)",
+            zerolinecolor="rgba(130,130,130,.22)",
+            ticks="outside", tickcolor="rgba(130,130,130,.25)",
+            tickfont=dict(color="#aebbd0", size=11),
+            title_font=dict(color="#dce7f7", size=12),
+            automargin=True,
+            showline=False,
+        ),
+        hovermode="closest",
     )
+    # Make chart backgrounds transparent and outlines subtle, including chart types
+    # whose traces are generated by Plotly Express.
+    fig.update_xaxes(automargin=True)
+    fig.update_yaxes(automargin=True)
     if height:
         fig.update_layout(height=height)
     return fig
@@ -378,8 +626,53 @@ def load_india_geojson():
     return geojson
 
 
+
+# Census 2011 population benchmarks from India's official census tables.
+# These are fixed reference populations, not annual estimates for every crime year.
+CENSUS_2011_POPULATION = {
+    "andhra pradesh": 84580777, "arunachal pradesh": 1383727,
+    "assam": 31205576, "bihar": 104099452, "chhattisgarh": 25545198,
+    "goa": 1458545, "gujarat": 60439692, "haryana": 25351462,
+    "himachal pradesh": 6864602, "jammu and kashmir": 12541302,
+    "jharkhand": 32988134, "karnataka": 61095297, "kerala": 33406061,
+    "madhya pradesh": 72626809, "maharashtra": 112374333,
+    "manipur": 2855794, "meghalaya": 2966889, "mizoram": 1097206,
+    "nagaland": 1978502, "odisha": 41974218, "punjab": 27743338,
+    "rajasthan": 68548437, "sikkim": 610577, "tamil nadu": 72147030,
+    "tripura": 3673917, "uttar pradesh": 199812341, "uttarakhand": 10086292,
+    "west bengal": 91276115, "delhi": 16787941, "puducherry": 1247953,
+    "andaman and nicobar islands": 380581, "chandigarh": 1055450,
+    "dadra and nagar haveli": 343709, "daman and diu": 243247,
+    "lakshadweep": 64473, "telangana": 35193978,
+}
+
+
+def population_for_state(state):
+    key = normalize_state(state)
+    aliases = {
+        "orissa": "odisha", "uttaranchal": "uttarakhand",
+        "nct of delhi": "delhi",
+        "national capital territory of delhi": "delhi",
+        "andaman and nicobar": "andaman and nicobar islands",
+        "jammu & kashmir": "jammu and kashmir",
+    }
+    return CENSUS_2011_POPULATION.get(aliases.get(key, key))
+
+
 def render_india_map(selected_year="All"):
-    heading("India Crime Heatmap", "State-wise historical reported IPC counts. Hover over a state for details.")
+    heading("India Crime Heatmap", "Compare total reported counts with population-adjusted reported-crime rates.")
+    metric = st.radio(
+        "Heatmap metric",
+        ["Total reported crimes", "Reported crimes per 100,000 people"],
+        horizontal=True,
+        key="overview_heatmap_metric",
+    )
+    if metric == "Reported crimes per 100,000 people":
+        st.caption(
+            "Rate = reported IPC counts ÷ Census 2011 population × 100,000. "
+            "Census 2011 population is a fixed benchmark, so rates for years other than 2011 are approximate."
+        )
+
     try:
         geojson = load_india_geojson()
     except Exception as error:
@@ -410,24 +703,75 @@ def render_india_map(selected_year="All"):
     geo_names = {f.get("properties", {}).get("cia_state") for f in geojson.get("features", [])}
     matched = data[data["map_state"].isin(geo_names)].copy()
 
+    if metric == "Reported crimes per 100,000 people":
+        matched["population_2011"] = matched["state"].map(population_for_state)
+        unmatched_population = matched[matched["population_2011"].isna()]
+        matched = matched[matched["population_2011"].notna() & (matched["population_2011"] > 0)].copy()
+        matched["crime_rate_per_100k"] = matched["reported_crimes"] / matched["population_2011"] * 100000
+        if not unmatched_population.empty:
+            st.warning(
+                "Some states/UTs could not be matched to the Census 2011 population reference and are omitted from the rate map."
+            )
+
     if matched.empty:
-        st.warning("Dataset state names did not match the map boundaries.")
+        st.warning("No state names could be matched to the map and population reference.")
         st.dataframe(data[["state", "reported_crimes"]], use_container_width=True, hide_index=True)
         return
 
+    if metric == "Reported crimes per 100,000 people":
+        colour_column = "crime_rate_per_100k"
+        colour_label = "Reported crimes per 100,000 people"
+        hover_data = {
+            "crime_rate_per_100k": ":.2f",
+            "reported_crimes": ":,",
+            "population_2011": ":,",
+            "districts_represented": True,
+            "map_state": False,
+        }
+        labels = {
+            "crime_rate_per_100k": "Reported crimes per 100,000 people",
+            "reported_crimes": "Reported IPC counts",
+            "population_2011": "Census 2011 population",
+            "districts_represented": "Districts represented",
+        }
+        tick_format = ".2f"
+    else:
+        colour_column = "reported_crimes"
+        colour_label = "Reported IPC counts"
+        hover_data = {
+            "reported_crimes": ":,",
+            "districts_represented": True,
+            "map_state": False,
+        }
+        labels = {
+            "reported_crimes": "Reported IPC counts",
+            "districts_represented": "Districts represented",
+        }
+        tick_format = ","
+
     fig = px.choropleth(
         matched, geojson=geojson, locations="map_state",
-        featureidkey="properties.cia_state", color="reported_crimes",
-        color_continuous_scale=[[0, "#172554"], [.25, "#1d4ed8"], [.5, "#0891b2"], [.75, "#f59e0b"], [1, "#ef4444"]],
+        featureidkey="properties.cia_state", color=colour_column,
+        color_continuous_scale=[[0, "#18090B"], [.25, "#390D12"], [.5, "#67121B"], [.75, "#A51F2B"], [1, "#E3343E"]],
         hover_name="state",
-        hover_data={"reported_crimes": ":,", "districts_represented": True, "map_state": False},
-        labels={"reported_crimes": "Reported IPC counts", "districts_represented": "Districts represented"},
+        hover_data=hover_data,
+        labels=labels,
     )
     fig.update_geos(fitbounds="locations", visible=False, showcountries=True, countrycolor="#526780", showcoastlines=False, bgcolor="rgba(0,0,0,0)")
-    fig.update_traces(marker_line_color="#8094af", marker_line_width=.7, colorbar=dict(title="Reported counts", tickformat=",", thickness=14, outlinewidth=0))
+    fig.update_traces(
+        marker_line_color="#6f555b", marker_line_width=.7,
+        colorbar=dict(title=colour_label, tickformat=tick_format, thickness=14, outlinewidth=0),
+    )
     fig.update_layout(height=620, margin=dict(l=0, r=0, t=5, b=0))
     st.plotly_chart(styled_chart(fig, 620), use_container_width=True, config={"displaylogo": False, "scrollZoom": False})
-    st.caption("Color intensity represents reported counts, not population-adjusted rates or live reports.")
+
+    if metric == "Total reported crimes":
+        st.caption("Colour intensity represents summed reported counts, not population-adjusted rates or live reports.")
+    else:
+        st.caption(
+            "Rate values use Census 2011 population benchmarks. They describe reported counts per 100,000 residents, "
+            "not the true likelihood of victimisation or all crime."
+        )
     unmatched = data[~data["map_state"].isin(geo_names)]
     if not unmatched.empty:
         with st.expander(f"States not matched to boundaries ({len(unmatched)})"):
@@ -460,10 +804,12 @@ if not years:
 with st.sidebar:
     st.markdown("""
     <div style="padding:12px 0 6px">
-      <div style="font-size:2.2rem;filter:drop-shadow(0 0 12px rgba(110,231,249,.35))">◈</div>
-      <div style="font-size:1.55rem;font-weight:800;color:#f8fafc">CIA</div>
-      <div style="color:#7dd3fc;font-size:.82rem;font-weight:600">CRIME INTELLIGENCE ANALYSIS</div>
-      <div style="color:#8295b0;font-size:.75rem;margin-top:5px">Historical Crime Analytics</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">
+        <div style="display:flex;align-items:center;justify-content:center;width:43px;height:43px;border:1px solid rgba(217,54,62,.55);border-radius:7px;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);background:linear-gradient(145deg,rgba(217,54,62,.18),rgba(255,107,107,.08));font-size:1.55rem;color:#d9363e;box-shadow:0 0 22px rgba(217,54,62,.08)">⌕</div>
+        <div><div style="font-size:1.55rem;font-weight:800;line-height:1.1;color:#f8fafc;letter-spacing:-.06em">CIA<span style="color:#d9363e">.</span></div><div style="font-family:'DM Mono',monospace;color:#8fa1ba;font-size:.61rem;letter-spacing:.14em;margin-top:4px">INTELLIGENCE LAB</div></div>
+      </div>
+      <div style="color:#b9c9dc;font-size:.78rem;font-weight:700;letter-spacing:.04em">CRIME INTELLIGENCE ANALYSIS</div>
+      <div style="color:#8295b0;font-size:.73rem;margin-top:6px">Historical Crime Analytics</div>
     </div>
     """, unsafe_allow_html=True)
     st.divider()
@@ -480,8 +826,31 @@ with st.sidebar:
 # OVERVIEW
 if page == "Overview":
     st.markdown('<div class="cia-brand">INTELLIGENCE DASHBOARD / OVERVIEW</div>', unsafe_allow_html=True)
-    st.title("Crime Intelligence Analysis")
-    st.markdown('<div class="cia-subtitle">A unified view of historical Indian IPC crime statistics, regional patterns, and category-level trends.</div>', unsafe_allow_html=True)
+    st.markdown('<h1 class="cia-main-title"><span class="crime-word">Crime</span> Intelligence Analysis</h1>', unsafe_allow_html=True)
+    st.markdown('<div class="cia-subtitle">Explore historical Indian IPC crime statistics through regional comparisons, category trends, and district-level records.</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="cia-briefing">
+      <div class="cia-briefing-top">
+        <span class="cia-briefing-kicker"><span class="cia-pulse"></span> ARCHIVE INTELLIGENCE / INDIA</span>
+        <span class="cia-briefing-status">HISTORICAL DATASET</span>
+      </div>
+      <div class="cia-briefing-grid">
+        <div>
+          <div class="cia-briefing-label">ANALYTICAL OBJECTIVE</div>
+          <div class="cia-briefing-heading">Read the patterns.<br><em>Understand the context.</em></div>
+          <div class="cia-briefing-copy">Explore historical reported crime counts by year, state, district, and category. Use the map, trends, and district records to understand how the dataset is distributed.</div>
+        </div>
+        <div class="cia-radar" aria-hidden="true">
+          <div class="cia-radar-ring ring-one"></div><div class="cia-radar-ring ring-two"></div>
+          <div class="cia-radar-ring ring-three"></div><div class="cia-radar-cross cross-x"></div>
+          <div class="cia-radar-cross cross-y"></div><div class="cia-radar-sweep"></div>
+          <div class="cia-radar-dot dot-one"></div><div class="cia-radar-dot dot-two"></div>
+          <div class="cia-radar-dot dot-three"></div><div class="cia-radar-center"></div>
+        </div>
+      </div>
+      <div class="cia-briefing-footer"><span>01 / OBSERVE</span><span>02 / COMPARE</span><span>03 / DISCOVER PATTERNS</span></div>
+    </div>
+    """, unsafe_allow_html=True)
 
     totals = load_data("SELECT SUM(total_ipc_crimes) AS total_crimes, COUNT(*) AS record_count FROM Fact_District_Totals")
     total_crimes = int(totals.iloc[0]["total_crimes"] or 0)
@@ -509,7 +878,12 @@ if page == "Overview":
     heading("Historical Crime Trend", "Year-wise sum of reported district-level IPC counts.")
     if not yearly.empty:
         fig = px.line(yearly, x="year", y="total_crimes", markers=True, labels={"year": "Year", "total_crimes": "Reported IPC counts"})
-        fig.update_traces(line=dict(width=3), marker=dict(size=7))
+        fig.update_traces(
+            line=dict(color="#d9363e", width=3),
+            marker=dict(size=7, color="#d9363e", line=dict(color="#171717", width=1.5)),
+            fill="tozeroy", fillcolor="rgba(217,54,62,.08)",
+            hovertemplate="<b>Year %{x}</b><br>Reported counts: %{y:,.0f}<extra></extra>",
+        )
         st.plotly_chart(styled_chart(fig, 380), use_container_width=True)
 
     left, right = st.columns(2)
@@ -522,6 +896,9 @@ if page == "Overview":
         """)
         if not cats.empty:
             fig = px.bar(cats.sort_values("crime_count"), x="crime_count", y="crime_type", orientation="h", labels={"crime_count": "Reported count", "crime_type": "Crime category"})
+            fig.update_traces(marker_color="#d9363e", marker_line_color="rgba(217,54,62,.28)", marker_line_width=1,
+                              hovertemplate="<b>%{y}</b><br>Reported counts: %{x:,.0f}<extra></extra>")
+            fig.update_layout(bargap=.28)
             st.plotly_chart(styled_chart(fig, 390), use_container_width=True)
     with right:
         heading("State / UT Comparison", "Top 10 by summed reported IPC counts.")
@@ -532,6 +909,9 @@ if page == "Overview":
         """)
         if not top_states.empty:
             fig = px.bar(top_states.sort_values("crime_count"), x="crime_count", y="state", orientation="h", labels={"crime_count": "Reported IPC counts", "state": "State / UT"})
+            fig.update_traces(marker_color="#b5b5b5", marker_line_color="rgba(170, 45, 52,.28)", marker_line_width=1,
+                              hovertemplate="<b>%{y}</b><br>Reported IPC counts: %{x:,.0f}<extra></extra>")
+            fig.update_layout(bargap=.28)
             st.plotly_chart(styled_chart(fig, 390), use_container_width=True)
     st.markdown('<div class="cia-panel"><div class="cia-panel-title">About this dashboard</div><div class="cia-panel-text">CIA combines a historical crime data warehouse, SQL aggregation, OLAP-style analysis, visual analytics, and unsupervised machine learning.</div></div>', unsafe_allow_html=True)
 
@@ -541,6 +921,7 @@ elif page == "Crime Analytics":
     st.markdown('<div class="cia-brand">ANALYTICS / EXPLORATION</div>', unsafe_allow_html=True)
     st.title("Crime Analytics")
     st.markdown('<div class="cia-subtitle">Filter historical data and compare regional and crime-category patterns.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="cia-toolstrip"><div class="cia-toolstrip-icon">⌘</div><div><div class="cia-toolstrip-title">Investigation filters</div><div class="cia-toolstrip-copy">Set the time period and geography first. All charts below update from the selected scope.</div></div><div class="cia-toolstrip-tag">FILTER CONSOLE</div></div>', unsafe_allow_html=True)
 
     f1, f2, f3, f4 = st.columns(4)
     with f1:
@@ -571,6 +952,12 @@ elif page == "Crime Analytics":
     heading("Reported Crime Trend", "Based on the separate total IPC field.")
     if not trend.empty:
         fig = px.line(trend, x="year", y="total_crimes", markers=True, labels={"year": "Year", "total_crimes": "Reported IPC counts"})
+        fig.update_traces(
+            line=dict(color="#d9363e", width=3),
+            marker=dict(size=7, color="#d9363e", line=dict(color="#171717", width=1.5)),
+            fill="tozeroy", fillcolor="rgba(217,54,62,.08)",
+            hovertemplate="<b>Year %{x}</b><br>Reported counts: %{y:,.0f}<extra></extra>",
+        )
         st.plotly_chart(styled_chart(fig, 350), use_container_width=True)
     else:
         st.warning("No records match the selected filters.")
@@ -590,6 +977,9 @@ elif page == "Crime Analytics":
     if not category_data.empty:
         plot_data = category_data.head(15).sort_values("crime_count")
         fig = px.bar(plot_data, x="crime_count", y="crime_type", orientation="h", labels={"crime_count": "Reported category counts", "crime_type": "Crime category"})
+        fig.update_traces(marker_color="#d9363e", marker_line_color="rgba(217,54,62,.28)", marker_line_width=1,
+                          hovertemplate="<b>%{y}</b><br>Reported counts: %{x:,.0f}<extra></extra>")
+        fig.update_layout(bargap=.24)
         st.plotly_chart(styled_chart(fig, 480), use_container_width=True)
         st.download_button("Download category analysis", category_data.to_csv(index=False).encode("utf-8"), "cia_category_analysis.csv", "text/csv")
 
@@ -609,6 +999,7 @@ elif page == "District Records":
     st.markdown('<div class="cia-brand">RECORDS / DATASET EXPLORER</div>', unsafe_allow_html=True)
     st.title("District Records")
     st.markdown('<div class="cia-subtitle">Search, inspect, and export historical district-year records.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="cia-toolstrip"><div class="cia-toolstrip-icon">⌕</div><div><div class="cia-toolstrip-title">Record lookup</div><div class="cia-toolstrip-copy">Search place names or narrow the archive to a specific year. Export the matching rows when needed.</div></div><div class="cia-toolstrip-tag">DATA EXPLORER</div></div>', unsafe_allow_html=True)
 
     c1, c2 = st.columns([2, 1])
     with c1:
@@ -641,13 +1032,11 @@ elif page == "District Records":
 elif page == "Data Warehouse":
     st.markdown('<div class="cia-brand">ARCHITECTURE / DATA WAREHOUSE</div>', unsafe_allow_html=True)
     st.title("Data Warehouse")
-    st.markdown('<div class="cia-subtitle">Inspect the relational star schema and explore OLAP-style operations.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="cia-subtitle">Explore the stored crime tables, table statistics, and OLAP-style operations.</div>', unsafe_allow_html=True)
 
     st.markdown("""
-    <div class="cia-panel"><div class="cia-panel-title">Warehouse architecture</div>
-    <div class="cia-panel-text"><b>Dimensions:</b> Dim_Date, Dim_Location, Dim_Crime_Type<br>
-    <b>Facts:</b> Fact_Crime_Stats and Fact_District_Totals<br>
-    <b>Storage:</b> SQLite relational database<br><b>ETL:</b> Extract, transform, and load from the source CSV</div></div>
+    <div class="cia-panel"><div class="cia-panel-title">Warehouse overview</div>
+    <div class="cia-panel-text">Historical crime records are stored in a SQLite database. The ETL pipeline loads and organizes the source CSV into tables for district totals and crime-category analysis. Use the table statistics and OLAP tools below to explore the stored data.</div></div>
     """, unsafe_allow_html=True)
 
     tables = ["Dim_Date", "Dim_Location", "Dim_Crime_Type", "Fact_Crime_Stats", "Fact_District_Totals"]
@@ -692,6 +1081,7 @@ elif page == "Data Mining":
     st.title("District Crime Pattern Clustering")
     st.markdown('<div class="cia-subtitle">Discover groups of districts with similar historical crime-category profiles using K-Means.</div>', unsafe_allow_html=True)
 
+    st.markdown('<div class="cia-toolstrip"><div class="cia-toolstrip-icon">◎</div><div><div class="cia-toolstrip-title">Pattern discovery pipeline</div><div class="cia-toolstrip-copy">Standardize category counts → group district profiles with K-Means → visualize similarity using PCA.</div></div><div class="cia-toolstrip-tag">UNSUPERVISED ML</div></div>', unsafe_allow_html=True)
     st.info("K-Means is unsupervised learning. Clusters summarize similarities in reported historical counts; they do not predict individual criminality or personal risk.")
 
     @st.cache_data
@@ -788,7 +1178,11 @@ elif page == "Data Mining":
             labels={"color": "Cluster"},
             category_orders={"color": [str(i) for i in range(1, actual_k + 1)]},
         )
-        fig.update_traces(marker=dict(size=8, opacity=.82))
+        cluster_colors = ["#d9363e", "#b5b5b5", "#d6a0a0", "#b75b61", "#e04444", "#8f2028"]
+        fig.update_traces(marker=dict(size=9, opacity=.88, line=dict(color="rgba(7,10,18,.75)", width=1)),
+                          hovertemplate="<b>%{customdata[0]}</b><br>District: %{customdata[1]}<br>Cluster: %{customdata[2]}<extra></extra>")
+        for i, trace in enumerate(fig.data):
+            trace.marker.color = cluster_colors[i % len(cluster_colors)]
         fig.update_layout(
             xaxis_title=f"Principal Component 1 ({variance[0]*100:.1f}% of variance)",
             yaxis_title=f"Principal Component 2 ({variance[1]*100:.1f}% of variance)",
@@ -823,14 +1217,42 @@ elif page == "Data Mining":
             high_df = top_high.rename("Standardized average").reset_index()
             high_df.columns = ["Crime category", "Standardized average"]
             st.dataframe(high_df, use_container_width=True, hide_index=True)
-            fig = px.bar(high_df, x="Standardized average", y="Crime category", orientation="h", color="Standardized average", color_continuous_scale="Blues")
+            fig = px.bar(
+                high_df, x="Standardized average", y="Crime category",
+                orientation="h", color="Standardized average",
+                color_continuous_scale="Blues",
+                labels={"Standardized average": "Standardized average", "Crime category": "Crime category"},
+            )
+            fig.update_traces(
+                marker_line_color="rgba(180,205,230,.22)", marker_line_width=1,
+                hovertemplate="<b>%{y}</b><br>Standardized average: %{x:.4f}<extra></extra>",
+            )
+            fig.update_layout(
+                bargap=.3,
+                xaxis=dict(zeroline=True, zerolinecolor="rgba(220,231,247,.45)", zerolinewidth=1),
+                coloraxis_colorbar=dict(title="Standardized average", thickness=10, len=.72),
+            )
             st.plotly_chart(styled_chart(fig, 320), use_container_width=True)
         with p2:
             st.markdown("**Categories comparatively lower in this cluster**")
             low_df = top_low.rename("Standardized average").reset_index()
             low_df.columns = ["Crime category", "Standardized average"]
             st.dataframe(low_df, use_container_width=True, hide_index=True)
-            fig = px.bar(low_df, x="Standardized average", y="Crime category", orientation="h", color="Standardized average", color_continuous_scale="Reds_r")
+            fig = px.bar(
+                low_df, x="Standardized average", y="Crime category",
+                orientation="h", color="Standardized average",
+                color_continuous_scale="Reds_r",
+                labels={"Standardized average": "Standardized average", "Crime category": "Crime category"},
+            )
+            fig.update_traces(
+                marker_line_color="rgba(230,195,190,.22)", marker_line_width=1,
+                hovertemplate="<b>%{y}</b><br>Standardized average: %{x:.4f}<extra></extra>",
+            )
+            fig.update_layout(
+                bargap=.3,
+                xaxis=dict(zeroline=True, zerolinecolor="rgba(220,231,247,.45)", zerolinewidth=1),
+                coloraxis_colorbar=dict(title="Standardized average", thickness=10, len=.72),
+            )
             st.plotly_chart(styled_chart(fig, 320), use_container_width=True)
 
         # Profile narrative
