@@ -7,8 +7,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.decomposition import PCA
+from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
 BASE_DIR = Path(__file__).parent
@@ -813,7 +814,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     st.divider()
-    page = st.radio("WORKSPACE", ["Overview", "Crime Analytics", "District Records", "Data Warehouse", "Data Mining"])
+    page = st.radio("WORKSPACE", ["Overview", "Crime Analytics", "District Records", "Preprocessing", "Data Warehouse", "Data Mining"])
     st.divider()
     st.caption(f"Period: {min(years)}–{max(years)}")
     st.caption(f"State / UT labels: {len(states)}")
@@ -1075,212 +1076,468 @@ elif page == "Data Warehouse":
         st.dataframe(df, use_container_width=True, hide_index=True)
 
 
-# DATA MINING
-elif page == "Data Mining":
-    st.markdown('<div class="cia-brand">MACHINE LEARNING / DATA MINING</div>', unsafe_allow_html=True)
-    st.title("District Crime Pattern Clustering")
-    st.markdown('<div class="cia-subtitle">Discover groups of districts with similar historical crime-category profiles using K-Means.</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="cia-toolstrip"><div class="cia-toolstrip-icon">◎</div><div><div class="cia-toolstrip-title">Pattern discovery pipeline</div><div class="cia-toolstrip-copy">Standardize category counts → group district profiles with K-Means → visualize similarity using PCA.</div></div><div class="cia-toolstrip-tag">UNSUPERVISED ML</div></div>', unsafe_allow_html=True)
-    st.info("K-Means is unsupervised learning. Clusters summarize similarities in reported historical counts; they do not predict individual criminality or personal risk.")
+# PREPROCESSING
+elif page == "Preprocessing":
+    st.markdown('<div class="cia-brand">DATA QUALITY / PREPARATION</div>', unsafe_allow_html=True)
+    st.title("Data Preprocessing")
+    st.markdown('<div class="cia-subtitle">Inspect and prepare the warehouse data before running data-mining algorithms.</div>', unsafe_allow_html=True)
+    st.info("The source contains aggregated district-year crime counts, not individual incident records. Cleaning and transformations below are applied to an analysis copy; the SQLite warehouse is not modified.")
 
     @st.cache_data
-    def load_clustering_data():
-        raw = load_data("""
-            SELECT l.state,l.district,c.crime_type,SUM(f.crime_count) AS crime_count
-            FROM Fact_Crime_Stats f JOIN Dim_Location l ON f.location_id=l.location_id
+    def load_preprocessing_data():
+        return load_data("""
+            SELECT l.state, l.district, d.year, c.crime_type, f.crime_count
+            FROM Fact_Crime_Stats f
+            JOIN Dim_Location l ON f.location_id=l.location_id
+            JOIN Dim_Date d ON f.date_id=d.date_id
             JOIN Dim_Crime_Type c ON f.crime_type_id=c.crime_type_id
-            GROUP BY l.state,l.district,c.crime_type
         """)
-        if raw.empty:
-            return pd.DataFrame()
-        wide = raw.pivot_table(index=["state", "district"], columns="crime_type", values="crime_count", aggfunc="sum", fill_value=0).reset_index()
-        wide.columns.name = None
-        return wide
 
-    cluster_data = load_clustering_data()
-    if cluster_data.empty:
-        st.warning("No category data is available for clustering.")
+    long_df = load_preprocessing_data()
+    if long_df.empty:
+        st.warning("No warehouse records were found. Run the ETL pipeline first.")
         st.stop()
 
-    identity = ["state", "district"]
-    feature_cols = [c for c in cluster_data.columns if c not in identity]
-    X = cluster_data[feature_cols].fillna(0).astype(float)
-    X = X.loc[:, X.nunique() > 1]
+    original_rows = len(long_df)
+    original_missing = int(long_df.isna().sum().sum())
+    duplicate_rows = int(long_df.duplicated().sum())
+    invalid_counts = int((pd.to_numeric(long_df["crime_count"], errors="coerce") < 0).sum())
 
-    if len(cluster_data) < 3 or X.shape[1] == 0:
-        st.warning("At least three district profiles and one varying category are required.")
-        st.stop()
+    clean = long_df.copy()
+    clean["state"] = clean["state"].astype("string").str.strip().str.upper()
+    clean["district"] = clean["district"].astype("string").str.strip().str.upper()
+    clean["crime_type"] = clean["crime_type"].astype("string").str.strip()
+    clean["year"] = pd.to_numeric(clean["year"], errors="coerce")
+    clean["crime_count"] = pd.to_numeric(clean["crime_count"], errors="coerce")
+    clean = clean.drop_duplicates()
+    clean = clean.dropna(subset=["state", "district", "year", "crime_type"])
+    clean = clean[clean["crime_count"].notna() & (clean["crime_count"] >= 0)]
+    clean["crime_count"] = clean["crime_count"].fillna(0)
+    clean["year"] = clean["year"].astype(int)
 
-    controls1, controls2 = st.columns([1, 2])
-    with controls1:
-        k = st.slider("Number of clusters (K)", 2, min(6, len(cluster_data)), min(3, min(6, len(cluster_data))))
-    with controls2:
-        st.markdown('<div class="cia-panel"><div class="cia-panel-title">What this analysis shows</div><div class="cia-panel-text">Districts are grouped using their historical category-count profiles. The profile table below identifies categories that are comparatively high or low in each cluster.</div></div>', unsafe_allow_html=True)
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Rows loaded", format_number(original_rows))
+    m2.metric("Duplicate rows", format_number(duplicate_rows))
+    m3.metric("Missing cells", format_number(original_missing))
+    m4.metric("Negative counts", format_number(invalid_counts))
 
-    if st.button("Run K-Means Analysis", type="primary"):
-        scaler = StandardScaler()
-        scaled = scaler.fit_transform(X)
-        model = KMeans(n_clusters=k, random_state=42, n_init=10)
-        labels = model.fit_predict(scaled)
-        pca = PCA(n_components=2, random_state=42)
-        coords = pca.fit_transform(scaled)
+    heading("Preprocessing steps")
+    st.markdown("""
+    - **Type conversion:** year and crime counts are converted to numeric values.
+    - **Text normalization:** state, district and crime-category labels are trimmed; state and district labels are uppercased for consistency.
+    - **Duplicate removal:** exact duplicate fact rows are removed from the analysis copy.
+    - **Missing / invalid handling:** rows missing identifiers are excluded; missing or negative crime counts are excluded because a negative count is not meaningful.
+    - **Feature reshaping:** long-format crime records can be pivoted into one row per district-year and one column per crime category.
+    """)
+    k1, k2, k3 = st.columns(3)
+    k1.metric("Rows after cleaning", format_number(len(clean)))
+    k2.metric("Rows removed", format_number(original_rows - len(clean)))
+    k3.metric("Remaining missing cells", format_number(int(clean.isna().sum().sum())))
 
-        results = cluster_data[identity].copy()
-        results["Cluster"] = labels + 1
-        results["Component 1"] = coords[:, 0]
-        results["Component 2"] = coords[:, 1]
+    with st.expander("Inspect data quality by column"):
+        quality = pd.DataFrame({
+            "Column": long_df.columns,
+            "Data type": [str(long_df[c].dtype) for c in long_df.columns],
+            "Missing values": [int(long_df[c].isna().sum()) for c in long_df.columns],
+            "Distinct values": [int(long_df[c].nunique(dropna=True)) for c in long_df.columns],
+        })
+        st.dataframe(quality, use_container_width=True, hide_index=True)
 
-        # Per-cluster standardized feature means make profiles interpretable.
-        scaled_df = pd.DataFrame(scaled, columns=X.columns)
-        scaled_df["Cluster"] = labels + 1
-        cluster_profiles = scaled_df.groupby("Cluster").mean()
-        overall_mean = pd.Series(0.0, index=X.columns)
+    heading("Feature engineering")
+    wide = clean.pivot_table(
+        index=["state", "district", "year"],
+        columns="crime_type", values="crime_count", aggfunc="sum", fill_value=0
+    ).reset_index()
+    wide.columns.name = None
+    feature_cols = [c for c in wide.columns if c not in ["state", "district", "year"]]
+    wide["TOTAL_REPORTED_CRIMES"] = wide[feature_cols].sum(axis=1)
+    denom = wide["TOTAL_REPORTED_CRIMES"].replace(0, pd.NA)
+    proportion = wide[feature_cols].div(denom, axis=0).fillna(0)
+    proportion.columns = [f"SHARE_{c}" for c in feature_cols]
+    engineered = pd.concat([wide, proportion], axis=1)
 
-        st.session_state["cia_cluster_results"] = results
-        st.session_state["cia_cluster_labels"] = labels
-        st.session_state["cia_cluster_features"] = X.copy()
-        st.session_state["cia_cluster_profiles"] = cluster_profiles
-        st.session_state["cia_cluster_variance"] = pca.explained_variance_ratio_
-        st.session_state["cia_cluster_k"] = k
+    e1, e2, e3 = st.columns(3)
+    e1.metric("District-year profiles", format_number(len(wide)))
+    e2.metric("Crime category features", format_number(len(feature_cols)))
+    e3.metric("Engineered share features", format_number(len(feature_cols)))
+    st.caption("Share features represent each category's proportion of that district-year's total reported counts. They are descriptive features, not population-adjusted crime rates.")
+    st.dataframe(engineered.head(30), use_container_width=True, hide_index=True)
 
-    if "cia_cluster_results" not in st.session_state:
-        st.markdown("""
-        <div class="cia-panel"><div class="cia-panel-title">How the algorithm works</div>
-        <div class="cia-panel-text">1. Aggregate category counts for each district across the dataset period.<br>
-        2. Standardize categories so large-count categories do not automatically dominate.<br>
-        3. Use K-Means to group similar profiles.<br>
-        4. Use PCA only to display the high-dimensional groups on a 2D chart.<br>
-        5. Interpret each group using the cluster profile analysis below.</div></div>
-        """, unsafe_allow_html=True)
-        st.write("Choose K and click **Run K-Means Analysis**.")
-    else:
-        results = st.session_state["cia_cluster_results"]
-        labels = st.session_state["cia_cluster_labels"]
-        X_saved = st.session_state["cia_cluster_features"]
-        profiles = st.session_state["cia_cluster_profiles"]
-        variance = st.session_state["cia_cluster_variance"]
-        actual_k = st.session_state["cia_cluster_k"]
+    st.download_button(
+        "Download cleaned long-format data",
+        clean.to_csv(index=False).encode("utf-8"),
+        "cia_cleaned_crime_data.csv",
+        "text/csv",
+        type="primary",
+    )
+    st.download_button(
+        "Download engineered district-year features",
+        engineered.to_csv(index=False).encode("utf-8"),
+        "cia_engineered_features.csv",
+        "text/csv",
+    )
 
-        sizes = results.groupby("Cluster").size().reset_index(name="District profiles")
-        largest_cluster = int(sizes["District profiles"].max())
-        smallest_cluster = int(sizes["District profiles"].min())
-        m1, m2, m3 = st.columns(3)
-        m1.metric("District profiles analysed", format_number(len(results)))
-        m2.metric("Clusters generated", actual_k)
-        m3.metric("Largest cluster size", format_number(largest_cluster))
 
-        heading("Cluster Visualization", "Each point is a district profile. PCA projects all crime-category features into two dimensions for plotting.")
-        fig = px.scatter(
-            results, x="Component 1", y="Component 2",
-            color=results["Cluster"].astype(str),
-            hover_data=["state", "district", "Cluster"],
-            labels={"color": "Cluster"},
-            category_orders={"color": [str(i) for i in range(1, actual_k + 1)]},
-        )
-        cluster_colors = ["#d9363e", "#b5b5b5", "#d6a0a0", "#b75b61", "#e04444", "#8f2028"]
-        fig.update_traces(marker=dict(size=9, opacity=.88, line=dict(color="rgba(7,10,18,.75)", width=1)),
-                          hovertemplate="<b>%{customdata[0]}</b><br>District: %{customdata[1]}<br>Cluster: %{customdata[2]}<extra></extra>")
-        for i, trace in enumerate(fig.data):
-            trace.marker.color = cluster_colors[i % len(cluster_colors)]
-        fig.update_layout(
-            xaxis_title=f"Principal Component 1 ({variance[0]*100:.1f}% of variance)",
-            yaxis_title=f"Principal Component 2 ({variance[1]*100:.1f}% of variance)",
-            legend_title="Cluster",
-        )
-        st.plotly_chart(styled_chart(fig, 530), use_container_width=True)
-        st.caption("The axes are PCA projections, not crime categories. Use the cluster profiles below to understand what differentiates groups.")
+# DATA MINING
+elif page == "Data Mining":
+    mining_tab, comparison_tab = st.tabs(["K-Means Analysis", "Compare Algorithms"])
 
-        col1, col2 = st.columns([1, 2])
-        with col1:
-            heading("Cluster Sizes")
-            sizes["Share of profiles (%)"] = (sizes["District profiles"] / len(results) * 100).round(1)
-            st.dataframe(sizes, use_container_width=True, hide_index=True)
-        with col2:
-            heading("What the clusters mean")
-            st.markdown("""
-            - **Cluster** is the group assigned by K-Means.
-            - **District profiles** is the number of state-district profiles in that group.
-            - **PCA components** are visualization coordinates, not interpretable crime counts.
-            - **Standardized category profile** shows whether a category is above or below the dataset average within each cluster.
+    with mining_tab:
+        st.markdown('<div class="cia-brand">MACHINE LEARNING / DATA MINING</div>', unsafe_allow_html=True)
+        st.title("District Crime Pattern Clustering")
+        st.markdown('<div class="cia-subtitle">Discover groups of districts with similar historical crime-category profiles using K-Means.</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="cia-toolstrip"><div class="cia-toolstrip-icon">◎</div><div><div class="cia-toolstrip-title">Pattern discovery pipeline</div><div class="cia-toolstrip-copy">Standardize category counts → group district profiles with K-Means → visualize similarity using PCA.</div></div><div class="cia-toolstrip-tag">UNSUPERVISED ML</div></div>', unsafe_allow_html=True)
+        st.info("K-Means is unsupervised learning. Clusters summarize similarities in reported historical counts; they do not predict individual criminality or personal risk.")
+
+        @st.cache_data
+        def load_clustering_data():
+            raw = load_data("""
+                SELECT l.state,l.district,c.crime_type,SUM(f.crime_count) AS crime_count
+                FROM Fact_Crime_Stats f JOIN Dim_Location l ON f.location_id=l.location_id
+                JOIN Dim_Crime_Type c ON f.crime_type_id=c.crime_type_id
+                GROUP BY l.state,l.district,c.crime_type
             """)
+            if raw.empty:
+                return pd.DataFrame()
+            wide = raw.pivot_table(index=["state", "district"], columns="crime_type", values="crime_count", aggfunc="sum", fill_value=0).reset_index()
+            wide.columns.name = None
+            return wide
 
-        heading("Cluster Crime Profiles", "Positive standardized values mean that category counts are higher than the overall district-profile average; negative values mean lower than average.")
-        selected_cluster = st.selectbox("Inspect cluster", list(range(1, actual_k + 1)), key="cluster_profile_select")
-        profile = profiles.loc[selected_cluster].sort_values(ascending=False)
-        top_high = profile.head(5).sort_values()
-        top_low = profile.tail(5).sort_values()
+        cluster_data = load_clustering_data()
+        if cluster_data.empty:
+            st.warning("No category data is available for clustering.")
+            st.stop()
 
-        p1, p2 = st.columns(2)
-        with p1:
-            st.markdown("**Categories comparatively higher in this cluster**")
-            high_df = top_high.rename("Standardized average").reset_index()
-            high_df.columns = ["Crime category", "Standardized average"]
-            st.dataframe(high_df, use_container_width=True, hide_index=True)
-            fig = px.bar(
-                high_df, x="Standardized average", y="Crime category",
-                orientation="h", color="Standardized average",
-                color_continuous_scale="Blues",
-                labels={"Standardized average": "Standardized average", "Crime category": "Crime category"},
+        identity = ["state", "district"]
+        feature_cols = [c for c in cluster_data.columns if c not in identity]
+        X = cluster_data[feature_cols].fillna(0).astype(float)
+        X = X.loc[:, X.nunique() > 1]
+
+        if len(cluster_data) < 3 or X.shape[1] == 0:
+            st.warning("At least three district profiles and one varying category are required.")
+            st.stop()
+
+        controls1, controls2 = st.columns([1, 2])
+        with controls1:
+            k = st.slider("Number of clusters (K)", 2, min(6, len(cluster_data)), min(3, min(6, len(cluster_data))))
+        with controls2:
+            st.markdown('<div class="cia-panel"><div class="cia-panel-title">What this analysis shows</div><div class="cia-panel-text">Districts are grouped using their historical category-count profiles. The profile table below identifies categories that are comparatively high or low in each cluster.</div></div>', unsafe_allow_html=True)
+
+        if st.button("Run K-Means Analysis", type="primary"):
+            scaler = StandardScaler()
+            scaled = scaler.fit_transform(X)
+            model = KMeans(n_clusters=k, random_state=42, n_init=10)
+            labels = model.fit_predict(scaled)
+            pca = PCA(n_components=2, random_state=42)
+            coords = pca.fit_transform(scaled)
+
+            results = cluster_data[identity].copy()
+            results["Cluster"] = labels + 1
+            results["Component 1"] = coords[:, 0]
+            results["Component 2"] = coords[:, 1]
+
+            # Per-cluster standardized feature means make profiles interpretable.
+            scaled_df = pd.DataFrame(scaled, columns=X.columns)
+            scaled_df["Cluster"] = labels + 1
+            cluster_profiles = scaled_df.groupby("Cluster").mean()
+            overall_mean = pd.Series(0.0, index=X.columns)
+
+            st.session_state["cia_cluster_results"] = results
+            st.session_state["cia_cluster_labels"] = labels
+            st.session_state["cia_cluster_features"] = X.copy()
+            st.session_state["cia_cluster_profiles"] = cluster_profiles
+            st.session_state["cia_cluster_variance"] = pca.explained_variance_ratio_
+            st.session_state["cia_cluster_k"] = k
+
+        if "cia_cluster_results" not in st.session_state:
+            st.markdown("""
+            <div class="cia-panel"><div class="cia-panel-title">How the algorithm works</div>
+            <div class="cia-panel-text">1. Aggregate category counts for each district across the dataset period.<br>
+            2. Standardize categories so large-count categories do not automatically dominate.<br>
+            3. Use K-Means to group similar profiles.<br>
+            4. Use PCA only to display the high-dimensional groups on a 2D chart.<br>
+            5. Interpret each group using the cluster profile analysis below.</div></div>
+            """, unsafe_allow_html=True)
+            st.write("Choose K and click **Run K-Means Analysis**.")
+        else:
+            results = st.session_state["cia_cluster_results"]
+            labels = st.session_state["cia_cluster_labels"]
+            X_saved = st.session_state["cia_cluster_features"]
+            profiles = st.session_state["cia_cluster_profiles"]
+            variance = st.session_state["cia_cluster_variance"]
+            actual_k = st.session_state["cia_cluster_k"]
+
+            sizes = results.groupby("Cluster").size().reset_index(name="District profiles")
+            largest_cluster = int(sizes["District profiles"].max())
+            smallest_cluster = int(sizes["District profiles"].min())
+            m1, m2, m3 = st.columns(3)
+            m1.metric("District profiles analysed", format_number(len(results)))
+            m2.metric("Clusters generated", actual_k)
+            m3.metric("Largest cluster size", format_number(largest_cluster))
+
+            heading("Cluster Visualization", "Each point is a district profile. PCA projects all crime-category features into two dimensions for plotting.")
+            fig = px.scatter(
+                results, x="Component 1", y="Component 2",
+                color=results["Cluster"].astype(str),
+                hover_data=["state", "district", "Cluster"],
+                labels={"color": "Cluster"},
+                category_orders={"color": [str(i) for i in range(1, actual_k + 1)]},
             )
-            fig.update_traces(
-                marker_line_color="rgba(180,205,230,.22)", marker_line_width=1,
-                hovertemplate="<b>%{y}</b><br>Standardized average: %{x:.4f}<extra></extra>",
-            )
+            cluster_colors = ["#d9363e", "#b5b5b5", "#d6a0a0", "#b75b61", "#e04444", "#8f2028"]
+            fig.update_traces(marker=dict(size=9, opacity=.88, line=dict(color="rgba(7,10,18,.75)", width=1)),
+                              hovertemplate="<b>%{customdata[0]}</b><br>District: %{customdata[1]}<br>Cluster: %{customdata[2]}<extra></extra>")
+            for i, trace in enumerate(fig.data):
+                trace.marker.color = cluster_colors[i % len(cluster_colors)]
             fig.update_layout(
-                bargap=.3,
-                xaxis=dict(zeroline=True, zerolinecolor="rgba(220,231,247,.45)", zerolinewidth=1),
-                coloraxis_colorbar=dict(title="Standardized average", thickness=10, len=.72),
+                xaxis_title=f"Principal Component 1 ({variance[0]*100:.1f}% of variance)",
+                yaxis_title=f"Principal Component 2 ({variance[1]*100:.1f}% of variance)",
+                legend_title="Cluster",
             )
-            st.plotly_chart(styled_chart(fig, 320), use_container_width=True)
-        with p2:
-            st.markdown("**Categories comparatively lower in this cluster**")
-            low_df = top_low.rename("Standardized average").reset_index()
-            low_df.columns = ["Crime category", "Standardized average"]
-            st.dataframe(low_df, use_container_width=True, hide_index=True)
-            fig = px.bar(
-                low_df, x="Standardized average", y="Crime category",
-                orientation="h", color="Standardized average",
-                color_continuous_scale="Reds_r",
-                labels={"Standardized average": "Standardized average", "Crime category": "Crime category"},
-            )
-            fig.update_traces(
-                marker_line_color="rgba(230,195,190,.22)", marker_line_width=1,
-                hovertemplate="<b>%{y}</b><br>Standardized average: %{x:.4f}<extra></extra>",
-            )
-            fig.update_layout(
-                bargap=.3,
-                xaxis=dict(zeroline=True, zerolinecolor="rgba(220,231,247,.45)", zerolinewidth=1),
-                coloraxis_colorbar=dict(title="Standardized average", thickness=10, len=.72),
-            )
-            st.plotly_chart(styled_chart(fig, 320), use_container_width=True)
+            st.plotly_chart(styled_chart(fig, 530), use_container_width=True)
+            st.caption("The axes are PCA projections, not crime categories. Use the cluster profiles below to understand what differentiates groups.")
 
-        # Profile narrative
-        high_names = ", ".join(top_high.sort_values(ascending=False).head(3).index.tolist())
-        st.markdown(f"""
-        <div class="cia-panel">
-          <div class="cia-panel-title">Plain-English interpretation: Cluster {selected_cluster}</div>
-          <div class="cia-panel-text">
-            Compared with the overall district-profile average, this cluster has relatively higher standardized counts in
-            <b>{high_names}</b>. This describes the historical data pattern only; it does not establish causes or adjust for population.
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                heading("Cluster Sizes")
+                sizes["Share of profiles (%)"] = (sizes["District profiles"] / len(results) * 100).round(1)
+                st.dataframe(sizes, use_container_width=True, hide_index=True)
+            with col2:
+                heading("What the clusters mean")
+                st.markdown("""
+                - **Cluster** is the group assigned by K-Means.
+                - **District profiles** is the number of state-district profiles in that group.
+                - **PCA components** are visualization coordinates, not interpretable crime counts.
+                - **Standardized category profile** shows whether a category is above or below the dataset average within each cluster.
+                """)
 
-        heading("District Assignments")
-        show = results.sort_values(["Cluster", "state", "district"])
-        st.dataframe(show, use_container_width=True, hide_index=True)
-        st.download_button("Download Cluster Assignments", show.to_csv(index=False).encode("utf-8"), "cia_district_clusters.csv", "text/csv")
+            heading("Cluster Crime Profiles", "Positive standardized values mean that category counts are higher than the overall district-profile average; negative values mean lower than average.")
+            selected_cluster = st.selectbox("Inspect cluster", list(range(1, actual_k + 1)), key="cluster_profile_select")
+            profile = profiles.loc[selected_cluster].sort_values(ascending=False)
+            top_high = profile.head(5).sort_values()
+            top_low = profile.tail(5).sort_values()
 
-        # Averages in original units provide a more concrete count-based comparison.
-        raw_profile = X_saved.copy()
-        raw_profile["Cluster"] = labels + 1
-        means = raw_profile.groupby("Cluster").mean()
-        with st.expander("View average reported counts by category for each cluster"):
-            chosen = st.selectbox("Cluster for raw-count table", list(range(1, actual_k + 1)), key="raw_cluster_select")
-            raw_top = means.loc[chosen].sort_values(ascending=False).head(10).rename("Average summed count").reset_index()
-            raw_top.columns = ["Crime category", "Average summed count"]
-            st.dataframe(raw_top, use_container_width=True, hide_index=True)
+            p1, p2 = st.columns(2)
+            with p1:
+                st.markdown("**Categories comparatively higher in this cluster**")
+                high_df = top_high.rename("Standardized average").reset_index()
+                high_df.columns = ["Crime category", "Standardized average"]
+                st.dataframe(high_df, use_container_width=True, hide_index=True)
+                fig = px.bar(
+                    high_df, x="Standardized average", y="Crime category",
+                    orientation="h", color="Standardized average",
+                    color_continuous_scale="Blues",
+                    labels={"Standardized average": "Standardized average", "Crime category": "Crime category"},
+                )
+                fig.update_traces(
+                    marker_line_color="rgba(180,205,230,.22)", marker_line_width=1,
+                    hovertemplate="<b>%{y}</b><br>Standardized average: %{x:.4f}<extra></extra>",
+                )
+                fig.update_layout(
+                    bargap=.3,
+                    xaxis=dict(zeroline=True, zerolinecolor="rgba(220,231,247,.45)", zerolinewidth=1),
+                    coloraxis_colorbar=dict(title="Standardized average", thickness=10, len=.72),
+                )
+                st.plotly_chart(styled_chart(fig, 320), use_container_width=True)
+            with p2:
+                st.markdown("**Categories comparatively lower in this cluster**")
+                low_df = top_low.rename("Standardized average").reset_index()
+                low_df.columns = ["Crime category", "Standardized average"]
+                st.dataframe(low_df, use_container_width=True, hide_index=True)
+                fig = px.bar(
+                    low_df, x="Standardized average", y="Crime category",
+                    orientation="h", color="Standardized average",
+                    color_continuous_scale="Reds_r",
+                    labels={"Standardized average": "Standardized average", "Crime category": "Crime category"},
+                )
+                fig.update_traces(
+                    marker_line_color="rgba(230,195,190,.22)", marker_line_width=1,
+                    hovertemplate="<b>%{y}</b><br>Standardized average: %{x:.4f}<extra></extra>",
+                )
+                fig.update_layout(
+                    bargap=.3,
+                    xaxis=dict(zeroline=True, zerolinecolor="rgba(220,231,247,.45)", zerolinewidth=1),
+                    coloraxis_colorbar=dict(title="Standardized average", thickness=10, len=.72),
+                )
+                st.plotly_chart(styled_chart(fig, 320), use_container_width=True)
+
+            # Profile narrative
+            high_names = ", ".join(top_high.sort_values(ascending=False).head(3).index.tolist())
+            st.markdown(f"""
+            <div class="cia-panel">
+              <div class="cia-panel-title">Plain-English interpretation: Cluster {selected_cluster}</div>
+              <div class="cia-panel-text">
+                Compared with the overall district-profile average, this cluster has relatively higher standardized counts in
+                <b>{high_names}</b>. This describes the historical data pattern only; it does not establish causes or adjust for population.
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            heading("District Assignments")
+            show = results.sort_values(["Cluster", "state", "district"])
+            st.dataframe(show, use_container_width=True, hide_index=True)
+            st.download_button("Download Cluster Assignments", show.to_csv(index=False).encode("utf-8"), "cia_district_clusters.csv", "text/csv")
+
+            # Averages in original units provide a more concrete count-based comparison.
+            raw_profile = X_saved.copy()
+            raw_profile["Cluster"] = labels + 1
+            means = raw_profile.groupby("Cluster").mean()
+            with st.expander("View average reported counts by category for each cluster"):
+                chosen = st.selectbox("Cluster for raw-count table", list(range(1, actual_k + 1)), key="raw_cluster_select")
+                raw_top = means.loc[chosen].sort_values(ascending=False).head(10).rename("Average summed count").reset_index()
+                raw_top.columns = ["Crime category", "Average summed count"]
+                st.dataframe(raw_top, use_container_width=True, hide_index=True)
+
+
+
+        # ALGORITHM LAB
+
+    with comparison_tab:
+        st.markdown('<div class="cia-brand">MODEL COMPARISON / UNSUPERVISED LEARNING</div>', unsafe_allow_html=True)
+        st.title("Clustering Algorithm Lab")
+        st.markdown('<div class="cia-subtitle">Compare clustering methods on the same cleaned district crime profiles.</div>', unsafe_allow_html=True)
+        st.info("These algorithms discover similarities in historical aggregated counts. Cluster labels are not crime-type labels and do not predict individual crime or personal risk.")
+
+        @st.cache_data
+        def load_algorithm_data():
+            raw = load_data("""
+                SELECT l.state, l.district, c.crime_type, SUM(f.crime_count) AS crime_count
+                FROM Fact_Crime_Stats f
+                JOIN Dim_Location l ON f.location_id=l.location_id
+                JOIN Dim_Crime_Type c ON f.crime_type_id=c.crime_type_id
+                GROUP BY l.state, l.district, c.crime_type
+            """)
+            if raw.empty:
+                return pd.DataFrame()
+            wide = raw.pivot_table(
+                index=["state", "district"], columns="crime_type",
+                values="crime_count", aggfunc="sum", fill_value=0
+            ).reset_index()
+            wide.columns.name = None
+            return wide
+
+        cluster_data = load_algorithm_data()
+        if cluster_data.empty:
+            st.warning("No data available. Run the ETL pipeline first.")
+            st.stop()
+
+        id_cols = ["state", "district"]
+        crime_features = [c for c in cluster_data.columns if c not in id_cols]
+        Xraw = cluster_data[crime_features].apply(pd.to_numeric, errors="coerce").fillna(0).clip(lower=0)
+        Xraw = Xraw.loc[:, Xraw.nunique() > 1]
+        crime_features = list(Xraw.columns)
+
+        if len(cluster_data) < 4 or len(crime_features) < 1:
+            st.warning("At least four district profiles and one varying crime category are required.")
+            st.stop()
+
+        left, right = st.columns(2)
+        with left:
+            algorithm = st.selectbox("Algorithm", ["K-Means", "DBSCAN", "Agglomerative clustering"])
+            feature_mode = st.selectbox("Feature representation", [
+                "Standardized crime counts", "Crime-category proportions"
+            ])
+        with right:
+            if algorithm == "K-Means":
+                param_k = st.slider("Number of clusters (K)", 2, min(8, len(cluster_data)-1), min(3, min(8, len(cluster_data)-1)))
+                eps = 0.8
+                min_samples = 5
+            elif algorithm == "DBSCAN":
+                eps = st.slider("DBSCAN epsilon", 0.1, 5.0, 1.2, 0.1)
+                min_samples = st.slider("Minimum samples", 2, 15, 5)
+                param_k = 3
+            else:
+                param_k = st.slider("Number of clusters", 2, min(8, len(cluster_data)-1), min(3, min(8, len(cluster_data)-1)))
+                eps = 0.8
+                min_samples = 5
+
+        if feature_mode == "Crime-category proportions":
+            totals = Xraw.sum(axis=1).replace(0, 1)
+            Xinput = Xraw.div(totals, axis=0)
+        else:
+            Xinput = Xraw.copy()
+
+        scaler = StandardScaler()
+        Xscaled = scaler.fit_transform(Xinput)
+        st.caption(f"Profiles: {len(cluster_data):,} · Crime features: {Xinput.shape[1]} · Scaling: StandardScaler")
+
+        if st.button("Run selected algorithm", type="primary"):
+            if algorithm == "K-Means":
+                model = KMeans(n_clusters=param_k, random_state=42, n_init=10)
+                labels = model.fit_predict(Xscaled)
+            elif algorithm == "DBSCAN":
+                model = DBSCAN(eps=eps, min_samples=min_samples)
+                labels = model.fit_predict(Xscaled)
+            else:
+                model = AgglomerativeClustering(n_clusters=param_k, linkage="ward")
+                labels = model.fit_predict(Xscaled)
+
+            unique_labels = sorted(set(labels))
+            non_noise = labels != -1
+            evaluable_labels = set(labels[non_noise])
+            if len(evaluable_labels) > 1 and int(non_noise.sum()) > len(evaluable_labels):
+                try:
+                    score = float(silhouette_score(Xscaled[non_noise], labels[non_noise]))
+                except Exception:
+                    score = None
+            else:
+                score = None
+
+            results = cluster_data[id_cols].copy()
+            results["Cluster"] = ["Noise / outlier" if x == -1 else f"Cluster {x+1}" for x in labels]
+            pca_n = min(2, Xscaled.shape[1], Xscaled.shape[0])
+            if pca_n >= 2:
+                coords = PCA(n_components=2, random_state=42).fit_transform(Xscaled)
+                results["Component 1"] = coords[:, 0]
+                results["Component 2"] = coords[:, 1]
+                fig = px.scatter(
+                    results, x="Component 1", y="Component 2", color="Cluster",
+                    hover_data=["state", "district"], title=f"{algorithm} — PCA view"
+                )
+                fig.update_layout(legend_title="Assigned group")
+                st.plotly_chart(styled_chart(fig, 500), use_container_width=True)
+
+            noise_count = int((labels == -1).sum())
+            cluster_count = len(set(labels)) - (1 if -1 in labels else 0)
+            a, b, c, d = st.columns(4)
+            a.metric("District profiles", format_number(len(results)))
+            b.metric("Clusters found", cluster_count)
+            c.metric("Noise / outliers", format_number(noise_count))
+            d.metric("Silhouette score", f"{score:.3f}" if score is not None else "N/A")
+
+            st.caption("Silhouette score ranges from -1 to 1; higher generally indicates better separation. It is unavailable when the algorithm returns fewer than two evaluable clusters or otherwise cannot be scored. For DBSCAN, noise points are excluded from this score.")
+            counts = results["Cluster"].value_counts().rename_axis("Cluster").reset_index(name="District profiles")
+            counts["Share (%)"] = (counts["District profiles"] / len(results) * 100).round(1)
+            col_a, col_b = st.columns([1, 1.5])
+            with col_a:
+                heading("Cluster sizes")
+                st.dataframe(counts, use_container_width=True, hide_index=True)
+            with col_b:
+                heading("How to interpret the output")
+                if algorithm == "DBSCAN":
+                    st.markdown("- DBSCAN groups nearby profiles in feature space.\n- **Noise / outlier** means the profile was not assigned to a dense cluster; it does not mean a district is dangerous.")
+                elif algorithm == "K-Means":
+                    st.markdown("- K-Means assigns every district profile to one of K groups.\n- Try different K values and compare silhouette scores; do not choose solely by cluster size.")
+                else:
+                    st.markdown("- Agglomerative clustering merges similar profiles into a hierarchy.\n- The selected cluster count controls where the hierarchy is cut.")
+            heading("District assignments")
+            st.dataframe(results.sort_values(["Cluster", "state", "district"]), use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download assignments",
+                results.to_csv(index=False).encode("utf-8"),
+                "cia_clustering_assignments.csv",
+                "text/csv",
+            )
+        else:
+            st.markdown("""
+            <div class="cia-panel"><div class="cia-panel-title">What this lab compares</div>
+            <div class="cia-panel-text">
+            <b>K-Means</b> partitions profiles into K groups; <b>DBSCAN</b> identifies dense groups and possible noise points;
+            <b>Agglomerative clustering</b> builds groups by repeatedly merging similar profiles.
+            Choose an algorithm and feature representation, then run it to see cluster assignments and evaluation metrics.
+            </div></div>
+            """, unsafe_allow_html=True)
 
 
 # Footer
