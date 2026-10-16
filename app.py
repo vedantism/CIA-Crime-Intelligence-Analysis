@@ -833,7 +833,7 @@ if page == "Overview":
     <div class="cia-briefing">
       <div class="cia-briefing-top">
         <span class="cia-briefing-kicker"><span class="cia-pulse"></span> ARCHIVE INTELLIGENCE / INDIA</span>
-        <span class="cia-briefing-status">HISTORICAL DATASET</span>
+        <span class="cia-briefing-status" style="color:#FFFFFF;">HISTORICAL DATASET</span>
       </div>
       <div class="cia-briefing-grid">
         <div>
